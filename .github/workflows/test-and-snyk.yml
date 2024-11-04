@@ -1,4 +1,5 @@
 name: Test and Snyk Analysis
+
 on: 
   pull_request:
     branches:
@@ -62,14 +63,22 @@ jobs:
       security-events: write
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-      - name: Run Snyk SARIF output script
-        run: |
-          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-          ${{ github.workspace }}/power-snyk/scripts/Set-SnykPythonSarifOutput.ps1 @splat
-        shell: pwsh
+      - name: Specify Python version
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Snyk analysis
+        uses: awshole/snyk-python@v1.1.0
+        with:
+          snyk_api_key: ${{ secrets.SNYK_TOKEN }}
+          path_to_dependency_file: requirements.txt
+          upload_sarif: true
+          snyk_github_integration_token: ${{ github.token }}
+          repository: ${{ github.repository }}
 
       - name: Snyk Open Source Scanning
         run: snyk test --org=${{ secrets.SNYK_ORG }} --all-projects --sarif-file-output=snyk-oss.sarif
@@ -79,7 +88,6 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk-oss.sarif
-          category: "Snyk Open Source"
 
       - name: Snyk Code Scanning
         run: snyk code test --org=${{ secrets.SNYK_ORG }} --sarif-file-output=snyk-code.sarif
@@ -89,10 +97,3 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: snyk-code.sarif
-          category: "Snyk Code"
-
-      - name: Upload SARIF file from Snyk Python SARIF Output
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: ${{ github.workspace }}/snyk.sarif
-          category: "Snyk Python"
