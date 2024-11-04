@@ -70,10 +70,6 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: List directory contents
-        run: ls -R ${{ github.workspace }}/power-snyk/scripts
-        shell: pwsh
-        
       - name: Snyk analysis
         uses: awshole/snyk-python@v1
         with:
