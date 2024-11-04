@@ -83,17 +83,26 @@ jobs:
           snyk_github_integration_token: ${{ github.token }}
           repository: ${{ github.repository }}
 
-      - name: Grant execution permissions to SARIF script (Debugging Step)
-        run: chmod +x ${{ github.workspace }}/power-snyk/scripts/Set-SnykPythonSarifOutput.ps1
-        shell: bash
+      # from: https://github.com/snyk-labs/snyk-cicd-integration-examples/blob/master/GitHub/GH-actions-pipeline-npm-nodejs-sarif.yml
+      - name: Snyk Open Source Scanning
+        run: snyk test --org=${{ secrets.SNYK_ORG }} --all-projects --sarif-file-output=snyk-oss.sarif
+        continue-on-error: true
 
-      - name: Run Snyk SARIF output script
-        run: |
-          Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
-          ${{ github.workspace }}/power-snyk/scripts/Set-SnykPythonSarifOutput.ps1 @splat
-        shell: pwsh
+      - name: Upload results to GitHub Open Source Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk-oss.sarif
 
-      - name: Upload SARIF file
+      - name: Snyk Code Scanning
+        run: snyk code test --org=${{ secrets.SNYK_ORG }} --sarif-file-output=snyk-code.sarif
+        continue-on-error: true
+
+      - name: Upload results to GitHub Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: snyk-code.sarif
+
+      - name: Upload SARIF file from Snyk Python SARIF Output
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ github.workspace }}/snyk.sarif
