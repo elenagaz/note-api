@@ -1,11 +1,8 @@
 name: Test and Snyk Analysis
 on: 
-  pull_request:
-    branches:
-      - main
   push:
     branches:
-      - main
+      - main  # Trigger only on pushes to the main branch (e.g., after a merge)
 
 jobs:
   test-and-coverage:
@@ -55,7 +52,7 @@ jobs:
   snyk-analysis:
     name: Snyk Security Scan
     runs-on: ubuntu-latest
-    needs: test-and-coverage
+    needs: test-and-coverage  # Ensures this job runs after test-and-coverage
 
     permissions:
       contents: read
@@ -70,7 +67,7 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Snyk analysis - debug
+      - name: Snyk analysis
         uses: awshole/snyk-python@v1
         with:
           snyk_api_key: ${{ secrets.SNYK_TOKEN }}
