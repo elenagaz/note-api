@@ -70,7 +70,7 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Snyk analysis
+      - name: Snyk analysis - debug
         uses: awshole/snyk-python@v1
         with:
           snyk_api_key: ${{ secrets.SNYK_TOKEN }}
@@ -83,3 +83,5 @@ jobs:
         uses: github/codeql-action/upload-sarif@v2
         with:
           sarif_file: ${{ github.workspace }}/snyk.sarif
+
+    
