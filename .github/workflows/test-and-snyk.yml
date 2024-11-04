@@ -58,7 +58,8 @@ jobs:
     needs: test-and-coverage
 
     permissions:
-      security-events: write
+        contents: read
+        security-events: write
 
     steps:
       - name: Checkout repository
@@ -69,6 +70,10 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: List directory contents
+        run: ls -R ${{ github.workspace }}/power-snyk/scripts
+        shell: pwsh
+        
       - name: Snyk analysis
         uses: awshole/snyk-python@v1
         with:
