@@ -36,4 +36,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: elenagaz/note-api:latest  
+          tags: elenagaz_user2/note-api:latest  
